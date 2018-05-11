@@ -4,11 +4,13 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/shirou/gopsutil/process"
+
 	"github.com/shirou/gopsutil/cpu"
 	"github.com/shirou/gopsutil/disk"
 	"github.com/shirou/gopsutil/host"
 	"github.com/shirou/gopsutil/mem"
-	
+
 	"github.com/shirou/gopsutil/net"
 )
 
@@ -25,7 +27,7 @@ func collet() {
 	nv, _ := net.IOCounters(true)
 	boottime, _ := host.BootTime()
 	btime := time.Unix(int64(boottime), 0).Format("2006-01-02 15:04:05")
-
+	p, _ := process.Processes()
 	fmt.Printf("Mem       	: %v MB  Free: %v MB Used:%v Usage:%f%%\n", v.Total/1024/1024, v.Available/1024/1024, v.Used/1024/1024, v.UsedPercent)
 	if len(c) > 1 {
 		for _, sub_cpu := range c {
@@ -46,9 +48,9 @@ func collet() {
 	fmt.Printf("HD        	: %v GB  Free: %v GB Usage:%f%%\n", d.Total/1024/1024/1024, d.Free/1024/1024/1024, d.UsedPercent)
 	fmt.Printf("OS        	: %v(%v)   %v  \n", n.Platform, n.PlatformFamily, n.PlatformVersion)
 	fmt.Printf("Hostname  	: %v  \n", n.Hostname)
-	// for _, pchild := range p {
-	// 	percent, err := pchild.MemoryPercent()
-	// 	fmt.Println(pchild.Pid, "   ", percent, "%", " error:", err)
-	// }
-	// time.Sleep(2 * time.Second)
+	for _, pchild := range p {
+		percent, err := pchild.MemoryPercent()
+		fmt.Println(pchild.Pid, "   ", percent, "%", " error:", err)
+	}
+	time.Sleep(2 * time.Second)
 }
