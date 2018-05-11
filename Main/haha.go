@@ -53,4 +53,5 @@ func collet() {
 		fmt.Println(pchild.Pid, "   ", percent, "%", " error:", err)
 	}
 	time.Sleep(2 * time.Second)
+	fmt.Println(time.Second * 5)
 }
