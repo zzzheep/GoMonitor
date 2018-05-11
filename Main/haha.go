@@ -52,7 +52,4 @@ func collet() {
 		percent, err := pchild.MemoryPercent()
 		fmt.Println(pchild.Pid, "   ", percent, "%", " error:", err)
 	}
-	time.Sleep(2 * time.Second)
-	fmt.Println(time.Second * 5)
-	fmt.Println(time.Second * 5)
 }
