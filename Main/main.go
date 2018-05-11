@@ -30,15 +30,15 @@ func collet() {
 	p, _ := process.Processes()
 	fmt.Printf("Mem       	: %v MB  Free: %v MB Used:%v Usage:%f%%\n", v.Total/1024/1024, v.Available/1024/1024, v.Used/1024/1024, v.UsedPercent)
 	if len(c) > 1 {
-		for _, sub_cpu := range c {
-			modelname := sub_cpu.ModelName
-			cores := sub_cpu.Cores
+		for _, SubCPU := range c {
+			modelname := SubCPU.ModelName
+			cores := SubCPU.Cores
 			fmt.Printf("CPU       	: %v   %v cores \n", modelname, cores)
 		}
 	} else {
-		sub_cpu := c[0]
-		modelname := sub_cpu.ModelName
-		cores := sub_cpu.Cores
+		SubCPU := c[0]
+		modelname := SubCPU.ModelName
+		cores := SubCPU.Cores
 		fmt.Printf("CPU       	: %v   %v cores \n", modelname, cores)
 	}
 	fmt.Println()
