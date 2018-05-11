@@ -54,4 +54,5 @@ func collet() {
 	}
 	time.Sleep(2 * time.Second)
 	fmt.Println(time.Second * 5)
+	fmt.Println(time.Second * 5)
 }
