@@ -52,7 +52,4 @@ func collet() {
 		percent, err := pchild.MemoryPercent()
 		fmt.Println(pchild.Pid, "   ", percent, "%", " error:", err)
 	}
-	fmt.Println("new branche")
-	fmt.Println("new branche")
-	fmt.Println("new branche")
 }
