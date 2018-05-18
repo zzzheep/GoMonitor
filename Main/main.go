@@ -7,17 +7,17 @@ import (
 )
 
 func main() {
-	gin.SetMode(gin.DebugMode)
 	r := gin.Default()
+	r.LoadHTMLGlob("../Views/*")
 	r.GET("/monitor", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{
-			"message": "monitorservice",
+		c.HTML(http.StatusOK, "index.html", gin.H{
+			"title": "monitorservice",
 		})
 	})
 	r.GET("/monitor/:name", func(c *gin.Context) {
 		name := c.Param("name")
-		c.JSON(http.StatusOK, gin.H{
-			"name": name,
+		c.HTML(http.StatusOK, "index.html", gin.H{
+			"title": name,
 		})
 	})
 	r.Run()
