@@ -7,6 +7,7 @@ import (
 )
 
 func main() {
+	gin.SetMode(gin.ReleaseMode)
 	r := gin.Default()
 	r.LoadHTMLGlob("../Views/*")
 	r.GET("/monitor", func(c *gin.Context) {
