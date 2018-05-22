@@ -1,6 +1,7 @@
 package main
 
 import (
+	"GoMonitor/Model"
 	"fmt"
 	"net/http"
 	"time"
@@ -28,32 +29,32 @@ func WsHandler(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("Failed to set websocket upgrade: %+v", err)
 		return
 	}
-
-	// 必须死循环，gin通过协程调用该handler函数，一旦退出函数，ws会被主动销毁
-	for {
-		// recieve
-		_, reply, err := conn.ReadMessage()
+	ticker := time.NewTicker(time.Second * 2)
+	for range ticker.C {
+		processInfo := Model.GetProcessInfo()
+		err := conn.WriteJSON(processInfo)
 		if err != nil {
-			break
+			fmt.Println("senderr", err)
 		}
-		fmt.Println(string(reply))
 	}
+
+	// // 必须死循环，gin通过协程调用该handler函数，一旦退出函数，ws会被主动销毁
+	// for {
+	// 	// recieve
+	// 	_, reply, err := conn.ReadMessage()
+	// 	if err != nil {
+	// 		break
+	// 	}
+	// 	fmt.Println(string(reply))
+	// }
 }
 
 func main() {
-	gin.SetMode(gin.ReleaseMode)
+	gin.SetMode(gin.DebugMode)
 	r := gin.Default()
 	r.LoadHTMLGlob("../Views/*")
 	r.GET("/monitor", func(c *gin.Context) {
-		c.HTML(http.StatusOK, "index.html", gin.H{
-			"title": "monitorservice",
-		})
+		WsHandler(c.Writer, c.Request)
 	})
-	r.GET("/monitor/:name", func(c *gin.Context) {
-		name := c.Param("name")
-		c.HTML(http.StatusOK, "index.html", gin.H{
-			"title": name,
-		})
-	})
-	r.Run()
+	r.Run("localhost:12312")
 }
