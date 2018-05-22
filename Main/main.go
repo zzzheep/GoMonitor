@@ -35,6 +35,7 @@ func WsHandler(w http.ResponseWriter, r *http.Request) {
 		err := conn.WriteJSON(processInfo)
 		if err != nil {
 			fmt.Println("senderr", err)
+			ticker.Stop()
 		}
 	}
 
@@ -56,5 +57,5 @@ func main() {
 	r.GET("/monitor", func(c *gin.Context) {
 		WsHandler(c.Writer, c.Request)
 	})
-	r.Run("localhost:12312")
+	r.Run()
 }
