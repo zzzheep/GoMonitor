@@ -5,28 +5,33 @@ import (
 )
 
 type ProcessInfo struct {
-	MemoryPercent float32 `json:"memory_percent,omitempty"`
-	Name          string  `json:"name,omitempty"`
-	Id            int32   `json:"id,omitempty"`
-	CPUPercent    float64 `json:"cpu_percent,omitempty"`
-	Status        string  `json:"status,omitempty"`
+	MemoryPercent float32 `json:"memory_percent"`
+	Name          string  `json:"name"`
+	Id            int32   `json:"id"`
+	CPUPercent    float64 `json:"cpu_percent"`
+	Status        string  `json:"status"`
 }
 
 func GetProcessInfo() []ProcessInfo {
 	p, _ := process.Processes()
-	processList := make([]ProcessInfo, len(p))
+	processList := make([]ProcessInfo, 0)
 	for _, pchild := range p {
-		memoryPercent, _ := pchild.MemoryPercent()
-		name, _ := pchild.Name()
-		status, _ := pchild.Status()
-		cpuPercent, _ := pchild.CPUPercent()
-		processList = append(processList, ProcessInfo{
-			MemoryPercent: memoryPercent,
-			Name:          name,
-			Id:            pchild.Pid,
-			Status:        status,
-			CPUPercent:    cpuPercent,
-		})
+		if pchild.Pid != 0 {
+			memoryPercent, _ := pchild.MemoryPercent()
+			name, _ := pchild.Name()
+			status, err := pchild.Status()
+			if err != nil {
+				status = "不支持"
+			}
+			cpuPercent, _ := pchild.CPUPercent()
+			processList = append(processList, ProcessInfo{
+				MemoryPercent: memoryPercent,
+				Name:          name,
+				Id:            pchild.Pid,
+				Status:        status,
+				CPUPercent:    cpuPercent,
+			})
+		}
 	}
 	return processList
 }

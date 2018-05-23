@@ -20,42 +20,57 @@ var wsupgrader = websocket.Upgrader{
 	},
 }
 
+var connMap = make(map[string]*websocket.Conn)
+
 // 处理ws请求
 func WsHandler(w http.ResponseWriter, r *http.Request) {
 	var conn *websocket.Conn
 	var err error
 	conn, err = wsupgrader.Upgrade(w, r, nil)
 	if err != nil {
-		fmt.Println("Failed to set websocket upgrade: %+v", err)
+		fmt.Println("连接出错：", err)
 		return
-	}
-	ticker := time.NewTicker(time.Second * 2)
-	for range ticker.C {
-		processInfo := Model.GetProcessInfo()
-		err := conn.WriteJSON(processInfo)
-		if err != nil {
-			fmt.Println("senderr", err)
-			ticker.Stop()
+	} else {
+		remoteAddr := conn.RemoteAddr().String()
+		fmt.Println("连上了，地址：", remoteAddr)
+		_, ok := connMap[remoteAddr]
+		if !ok {
+			connMap[remoteAddr] = conn
 		}
+		fmt.Println("当前连接总数：", len(connMap))
 	}
 
-	// // 必须死循环，gin通过协程调用该handler函数，一旦退出函数，ws会被主动销毁
-	// for {
-	// 	// recieve
-	// 	_, reply, err := conn.ReadMessage()
-	// 	if err != nil {
-	// 		break
-	// 	}
-	// 	fmt.Println(string(reply))
-	// }
 }
 
 func main() {
+	runTicker()
 	gin.SetMode(gin.DebugMode)
 	r := gin.Default()
 	r.LoadHTMLGlob("../Views/*")
+	r.GET("/", func(c *gin.Context) {
+		c.HTML(http.StatusOK, "index.html", gin.H{})
+	})
 	r.GET("/monitor", func(c *gin.Context) {
 		WsHandler(c.Writer, c.Request)
 	})
 	r.Run()
+}
+
+func runTicker() {
+	go func() {
+		for range time.NewTicker(time.Second * 1).C {
+			if len(connMap) > 0 {
+				processInfo := Model.GetProcessInfo()
+				//推送
+				for k, conn := range connMap {
+					err := conn.WriteJSON(processInfo)
+					if err != nil {
+						delete(connMap, k)
+						fmt.Println("当前连接总数：", len(connMap))
+						fmt.Println(conn.RemoteAddr().String(), "已断开")
+					}
+				}
+			}
+		}
+	}()
 }
