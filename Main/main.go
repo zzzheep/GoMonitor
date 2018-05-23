@@ -43,7 +43,7 @@ func WsHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	runTicker()
+	go runMonitorProcessTicker()
 	gin.SetMode(gin.DebugMode)
 	r := gin.Default()
 	r.LoadHTMLGlob("../Views/*")
@@ -56,21 +56,20 @@ func main() {
 	r.Run()
 }
 
-func runTicker() {
-	go func() {
-		for range time.NewTicker(time.Second * 1).C {
-			if len(connMap) > 0 {
-				processInfo := Model.GetProcessInfo()
-				//推送
-				for k, conn := range connMap {
-					err := conn.WriteJSON(processInfo)
-					if err != nil {
-						delete(connMap, k)
-						fmt.Println("当前连接总数：", len(connMap))
-						fmt.Println(conn.RemoteAddr().String(), "已断开")
-					}
+//监控进程数据
+func runMonitorProcessTicker() {
+	for range time.NewTicker(time.Second * 1).C {
+		if len(connMap) > 0 {
+			processInfo := Model.GetProcessInfo()
+			//推送
+			for k, conn := range connMap {
+				err := conn.WriteJSON(processInfo)
+				if err != nil {
+					delete(connMap, k)
+					fmt.Println("当前连接总数：", len(connMap))
+					fmt.Println(conn.RemoteAddr().String(), "已断开")
 				}
 			}
 		}
-	}()
+	}
 }
