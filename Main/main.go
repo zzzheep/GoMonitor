@@ -39,11 +39,12 @@ func WsHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		fmt.Println("当前连接总数：", len(connMap))
 	}
-
 }
 
 func main() {
 	go runMonitorProcessTicker()
+	go runMonitorCpuTicker()
+	go runMonitorNetTicker()
 	gin.SetMode(gin.DebugMode)
 	r := gin.Default()
 	r.LoadHTMLGlob("../Views/*")
@@ -63,12 +64,47 @@ func runMonitorProcessTicker() {
 			processInfo := Model.GetProcessInfo()
 			//推送
 			for k, conn := range connMap {
-				err := conn.WriteJSON(processInfo)
+				err := conn.WriteJSON(gin.H{
+					"type": "process",
+					"data": processInfo,
+				})
 				if err != nil {
 					delete(connMap, k)
 					fmt.Println("当前连接总数：", len(connMap))
 					fmt.Println(conn.RemoteAddr().String(), "已断开")
 				}
+			}
+		}
+	}
+}
+
+//监控网路数据
+func runMonitorNetTicker() {
+	for range time.NewTicker(time.Second * 1).C {
+		if len(connMap) > 0 {
+			netInfo := Model.GetNetInfo()
+			//推送
+			for _, conn := range connMap {
+				conn.WriteJSON(gin.H{
+					"type": "net",
+					"data": netInfo,
+				})
+			}
+		}
+	}
+}
+
+//监控cpu数据
+func runMonitorCpuTicker() {
+	for range time.NewTicker(time.Second * 2).C {
+		if len(connMap) > 0 {
+			cpuInfo := Model.GetCpuInfo()
+			//推送
+			for _, conn := range connMap {
+				conn.WriteJSON(gin.H{
+					"type": "cpu",
+					"data": cpuInfo,
+				})
 			}
 		}
 	}
