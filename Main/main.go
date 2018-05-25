@@ -3,6 +3,7 @@ package main
 import (
 	"GoMonitor/Model"
 	"fmt"
+	"log"
 	"net/http"
 	"time"
 
@@ -59,6 +60,11 @@ func main() {
 
 //监控进程数据
 func runMonitorProcessTicker() {
+	defer func() {
+		if result := recover(); result != nil {
+			log.Println(result)
+		}
+	}()
 	for range time.NewTicker(time.Second * 1).C {
 		if len(connMap) > 0 {
 			processInfo := Model.GetProcessInfo()
@@ -80,6 +86,11 @@ func runMonitorProcessTicker() {
 
 //监控网路数据
 func runMonitorNetTicker() {
+	defer func() {
+		if result := recover(); result != nil {
+			log.Println(result)
+		}
+	}()
 	for range time.NewTicker(time.Second * 1).C {
 		if len(connMap) > 0 {
 			netInfo := Model.GetNetInfo()
@@ -96,6 +107,11 @@ func runMonitorNetTicker() {
 
 //监控cpu数据
 func runMonitorCpuTicker() {
+	defer func() {
+		if result := recover(); result != nil {
+			log.Println(result)
+		}
+	}()
 	for range time.NewTicker(time.Second * 2).C {
 		if len(connMap) > 0 {
 			cpuInfo := Model.GetCpuInfo()
