@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"runtime"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -43,6 +44,7 @@ func WsHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
+	runtime.GOMAXPROCS(runtime.NumCPU())
 	go runMonitorProcessTicker()
 	go runMonitorCpuTicker()
 	go runMonitorNetTicker()
@@ -69,16 +71,11 @@ func runMonitorProcessTicker() {
 		if len(connMap) > 0 {
 			processInfo := Model.GetProcessInfo()
 			//推送
-			for k, conn := range connMap {
-				err := conn.WriteJSON(gin.H{
+			for _, conn := range connMap {
+				conn.WriteJSON(gin.H{
 					"type": "process",
 					"data": processInfo,
 				})
-				if err != nil {
-					delete(connMap, k)
-					fmt.Println("当前连接总数：", len(connMap))
-					fmt.Println(conn.RemoteAddr().String(), "已断开")
-				}
 			}
 		}
 	}
@@ -95,11 +92,16 @@ func runMonitorNetTicker() {
 		if len(connMap) > 0 {
 			netInfo := Model.GetNetInfo()
 			//推送
-			for _, conn := range connMap {
-				conn.WriteJSON(gin.H{
+			for k, conn := range connMap {
+				err := conn.WriteJSON(gin.H{
 					"type": "net",
 					"data": netInfo,
 				})
+				if err != nil {
+					delete(connMap, k)
+					fmt.Println("当前连接总数：", len(connMap))
+					fmt.Println(conn.RemoteAddr().String(), "已断开")
+				}
 			}
 		}
 	}

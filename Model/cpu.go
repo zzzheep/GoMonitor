@@ -11,11 +11,15 @@ type CpuInfo struct {
 	Used float64 `json:"used,omitempty"`
 }
 
-func GetCpuInfo() CpuInfo {
+func GetCpuInfo() []CpuInfo {
 	c, _ := cpu.Info()
 	cc, _ := cpu.Percent(time.Second, false)
-	return CpuInfo{
-		Name: c[0].ModelName,
-		Used: cc[0],
+	cpuList := make([]CpuInfo, 0, len(c))
+	for i, _ := range c {
+		cpuList = append(cpuList, CpuInfo{
+			Name: c[i].ModelName,
+			Used: cc[i],
+		})
 	}
+	return cpuList
 }
