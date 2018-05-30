@@ -5,5 +5,5 @@ EasyMonitor
 
 主页：http://localhost:8080/
 <br/>cpu接口：ws://localhost:8080/monitorCpu
-<br/>net接口：:ws://localhost:8080/monitorNet
+<br/>net接口：ws://localhost:8080/monitorNet
 <br/>process接口：ws://localhost:8080/monitorProcess
