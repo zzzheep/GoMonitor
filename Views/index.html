@@ -1,9 +1,19 @@
+<!DOCTYPE html>
 <html>
+<head>
+    <meta charset="UTF-8">
+    <title>Basic Pagination - jQuery EasyUI Demo</title>
+    <link rel="stylesheet" type="text/css" href="themes/default/easyui.css">
+    <link rel="stylesheet" type="text/css" href="themes/icon.css">
+    <script type="text/javascript" src="static/jquery.min.js"></script>
+    <script type="text/javascript" src="static/jquery.easyui.min.js"></script>
+</head>
 <body>
-
-<h1>{{.title}}</h1>
-
-<p>我的第一个段落。</p>
-
+<h2>Basic Pagination</h2>
+<p>The user can change page number and page size on page bar.</p>
+<div style="margin:20px 0;"></div>
+<div class="easyui-panel">
+    <div class="easyui-pagination" data-options="total:114"></div>
+</div>
 </body>
 </html>
